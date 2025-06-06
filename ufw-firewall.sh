@@ -1,18 +1,30 @@
 #!/bin/bash
 
 echo ""
-echo "==============================="
-echo " UFW - Advanced Configuration"
-echo "==============================="
+echo "========================================="
+echo " UFW - Advanced Firewall Configuration"
+echo "========================================="
+echo ""
+
+# Check if script is run as root
+if [[ "$EUID" -ne 0 ]]; then
+    echo "❌ This script must be run as root. Try: sudo $0"
+    exit 1
+fi
+
+# Check if sudo is installed
+if ! command -v sudo &> /dev/null; then
+    echo "❌ 'sudo' is not installed. Please install it with: apt install sudo"
+    exit 1
+fi
 
 # Check if ufw is installed
 if ! command -v ufw &> /dev/null; then
-    echo "Error: ufw is not installed. Install it with: sudo apt install ufw"
+    echo "❌ 'ufw' is not installed. Install it with: sudo apt install ufw"
     exit 1
 fi
 
 # Initial menu
-echo ""
 echo "Select an option:"
 echo "1) Continue with Firewall configuration"
 echo "2) Check current UFW status"
@@ -28,14 +40,15 @@ case "$option" in
         echo ""
         echo "Current UFW status:"
         sudo ufw status verbose
-        echo ""
         exit 0
         ;;
     3)
+        echo ""
         echo "Exiting..."
         exit 0
         ;;
     *)
+        echo ""
         echo "Invalid option. Exiting..."
         exit 1
         ;;
@@ -86,6 +99,7 @@ echo ""
 echo "================================="
 echo "🔒 Configuration Summary"
 echo "================================="
+echo ""
 echo "Default incoming policy: $( [[ "$deny_in" =~ ^[Yy]$ ]] && echo "deny" || echo "allow" )"
 echo "Default outgoing policy: $( [[ "$allow_out" =~ ^[Yy]$ ]] && echo "allow" || echo "deny" )"
 echo "ALLOWED ports: ${allow_ports[*]:-"None"}"
@@ -131,5 +145,6 @@ if [[ "$confirm" =~ ^[Yy]$ ]]; then
     echo ""
     echo "✅ Rules applied successfully!"
 else
+    echo ""
     echo "🚫 Operation cancelled."
 fi
